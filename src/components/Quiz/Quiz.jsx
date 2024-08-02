@@ -5,6 +5,8 @@ import "./Quiz.scss";
 
 const Quiz = ({ questions, setResult }) => {
   const navigate = useNavigate();
+
+  // Initialize state from localStorage or defaults
   const initialQuestion = Number(localStorage.getItem("currentQuestion")) || 0;
   const savedResult = JSON.parse(localStorage.getItem("result")) || {
     score: 0,
@@ -12,6 +14,7 @@ const Quiz = ({ questions, setResult }) => {
     wrongAnswers: 0,
     totalQuestions: questions.length,
   };
+
   const [currentQuestion, setCurrentQuestion] = useState(initialQuestion);
   const [answerIdx, setAnswerIdx] = useState(null);
   const [answer, setAnswer] = useState(null);
@@ -22,6 +25,7 @@ const Quiz = ({ questions, setResult }) => {
   const { question, correct_answer, incorrect_answers } =
     questions[currentQuestion];
 
+  // Update choices and localStorage whenever the question or answers change
   useEffect(() => {
     if (questions.length > 0) {
       const allChoices = [correct_answer, ...incorrect_answers];
@@ -30,10 +34,12 @@ const Quiz = ({ questions, setResult }) => {
     }
   }, [correct_answer, currentQuestion, incorrect_answers, questions]);
 
+  // Update localStorage whenever the result changes
   useEffect(() => {
     localStorage.setItem("result", JSON.stringify(result));
   }, [result]);
 
+  // Shuffle function for randomizing answer choices
   function shuffle(array) {
     for (let i = array.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -42,6 +48,7 @@ const Quiz = ({ questions, setResult }) => {
     return array;
   }
 
+  // Handle answer click
   const onAnswerClick = (answer, index) => {
     setAnswerIdx(index);
     if (answer === correct_answer) {
@@ -51,6 +58,7 @@ const Quiz = ({ questions, setResult }) => {
     }
   };
 
+  // Handle next button click
   const onClickNext = (finalAnswer) => {
     setAnswerIdx(null);
     setShowAnswerTimer(false);
@@ -90,6 +98,7 @@ const Quiz = ({ questions, setResult }) => {
     }
   };
 
+  // Handle timer completion
   const handleTime = () => {
     setAnswer(false);
     onClickNext(false);
