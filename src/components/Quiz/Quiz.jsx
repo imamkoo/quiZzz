@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import Result from "../Result/Result";
+import { useNavigate } from "react-router-dom";
 import Timer from "../Timer/Timer";
 import "./Quiz.scss";
 
-const Quiz = ({ questions }) => {
+const Quiz = ({ questions, setResult }) => {
+  const navigate = useNavigate();
   const initialQuestion = Number(localStorage.getItem("currentQuestion")) || 0;
   const savedResult = JSON.parse(localStorage.getItem("result")) || {
     score: 0,
@@ -14,8 +15,7 @@ const Quiz = ({ questions }) => {
   const [currentQuestion, setCurrentQuestion] = useState(initialQuestion);
   const [answerIdx, setAnswerIdx] = useState(null);
   const [answer, setAnswer] = useState(null);
-  const [result, setResult] = useState(savedResult);
-  const [showResult, setShowResult] = useState(false);
+  const [result, setLocalResult] = useState(savedResult);
   const [showAnswerTimer, setShowAnswerTimer] = useState(true);
   const [choices, setChoices] = useState([]);
 
@@ -23,10 +23,12 @@ const Quiz = ({ questions }) => {
     questions[currentQuestion];
 
   useEffect(() => {
-    const allChoices = [correct_answer, ...incorrect_answers];
-    setChoices(shuffle(allChoices));
-    localStorage.setItem("currentQuestion", currentQuestion);
-  }, [correct_answer, currentQuestion, incorrect_answers]);
+    if (questions.length > 0) {
+      const allChoices = [correct_answer, ...incorrect_answers];
+      setChoices(shuffle(allChoices));
+      localStorage.setItem("currentQuestion", currentQuestion);
+    }
+  }, [correct_answer, currentQuestion, incorrect_answers, questions]);
 
   useEffect(() => {
     localStorage.setItem("result", JSON.stringify(result));
@@ -52,7 +54,7 @@ const Quiz = ({ questions }) => {
   const onClickNext = (finalAnswer) => {
     setAnswerIdx(null);
     setShowAnswerTimer(false);
-    setResult((prev) =>
+    setLocalResult((prev) =>
       finalAnswer
         ? {
             ...prev,
@@ -67,28 +69,26 @@ const Quiz = ({ questions }) => {
 
     if (currentQuestion !== questions.length - 1) {
       setCurrentQuestion((prev) => prev + 1);
+      setTimeout(() => {
+        setShowAnswerTimer(true);
+      });
     } else {
-      setCurrentQuestion(0);
-      setShowResult(true);
+      // Pastikan result di-update sebelum navigate
+      const finalResult = {
+        ...result,
+        score: finalAnswer ? result.score + 10 : result.score,
+        correctAnswers: finalAnswer
+          ? result.correctAnswers + 1
+          : result.correctAnswers,
+        wrongAnswers: finalAnswer
+          ? result.wrongAnswers
+          : result.wrongAnswers + 1,
+      };
+      setResult(finalResult);
+      navigate("/result");
       localStorage.removeItem("currentQuestion");
       localStorage.removeItem("result");
     }
-    setTimeout(() => {
-      setShowAnswerTimer(true);
-    });
-  };
-
-  const onTryAgain = () => {
-    setResult({
-      score: 0,
-      correctAnswers: 0,
-      wrongAnswers: 0,
-      totalQuestions: questions.length,
-    });
-    setShowResult(false);
-    setCurrentQuestion(0);
-    localStorage.removeItem("currentQuestion");
-    localStorage.removeItem("result");
   };
 
   const handleTime = () => {
@@ -98,35 +98,31 @@ const Quiz = ({ questions }) => {
 
   return (
     <div className="quiz-container">
-      {!showResult ? (
-        <>
-          {showAnswerTimer && <Timer duration={5} onTime={handleTime} />}
-          <span className="active-question-no">{currentQuestion + 1}</span>
-          <span className="total-question">/{questions.length}</span>
-          <h2>{question}</h2>
-          <ul>
-            {choices.map((choice, index) => (
-              <li
-                onClick={() => onAnswerClick(choice, index)}
-                key={choice}
-                className={answerIdx === index ? "selected-answer" : null}
-              >
-                {choice}
-              </li>
-            ))}
-          </ul>
-          <div className="footer">
-            <button
-              onClick={() => onClickNext(answer)}
-              disabled={answerIdx === null}
+      <>
+        {showAnswerTimer && <Timer duration={5} onTime={handleTime} />}
+        <span className="active-question-no">{currentQuestion + 1}</span>
+        <span className="total-question">/{questions.length}</span>
+        <h2>{question}</h2>
+        <ul>
+          {choices.map((choice, index) => (
+            <li
+              onClick={() => onAnswerClick(choice, index)}
+              key={choice}
+              className={answerIdx === index ? "selected-answer" : null}
             >
-              {currentQuestion === questions.length - 1 ? "Finish" : "Next"}
-            </button>
-          </div>
-        </>
-      ) : (
-        <Result result={result} onTryAgain={onTryAgain} />
-      )}
+              {choice}
+            </li>
+          ))}
+        </ul>
+        <div className="footer">
+          <button
+            onClick={() => onClickNext(answer)}
+            disabled={answerIdx === null}
+          >
+            {currentQuestion === questions.length - 1 ? "Finish" : "Next"}
+          </button>
+        </div>
+      </>
     </div>
   );
 };

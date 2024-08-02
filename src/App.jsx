@@ -1,12 +1,28 @@
+import { onAuthStateChanged } from "firebase/auth";
 import { useEffect, useState } from "react";
+import {
+  Navigate,
+  Route,
+  BrowserRouter as Router,
+  Routes,
+} from "react-router-dom";
 import "./App.scss";
+import Login from "./components/Login/Login";
 import Quiz from "./components/Quiz/Quiz";
+import Result from "./components/Result/Result";
+import { auth } from "./firebase";
 
 function App() {
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [result, setResult] = useState(null);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
+    onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
+
     fetch(
       "https://opentdb.com/api.php?amount=10&difficulty=medium&type=multiple"
     )
@@ -20,7 +36,10 @@ function App() {
         setQuestions(formattedQuestions);
         setLoading(false);
       })
-      .catch((error) => console.error("Error fetching questions:", error));
+      .catch((error) => {
+        console.error("Error fetching questions:", error);
+        setLoading(false);
+      });
   }, []);
 
   const decodeHtmlEntities = (text) => {
@@ -29,10 +48,48 @@ function App() {
     return textarea.value;
   };
 
-  return loading ? (
-    <div className="loading">Loading...</div>
-  ) : (
-    <Quiz questions={questions} />
+  const handleSetResult = (resultData) => {
+    setResult(resultData);
+  };
+
+  const handleResetResult = () => {
+    setResult(null);
+  };
+
+  return (
+    <Router>
+      {loading ? (
+        <div className="loading">Loading...</div>
+      ) : (
+        <Routes>
+          <Route
+            path="/"
+            element={user ? <Navigate to="/quiz" /> : <Login />}
+          />
+          <Route
+            path="/quiz"
+            element={
+              user ? (
+                <Quiz questions={questions} setResult={handleSetResult} />
+              ) : (
+                <Navigate to="/" />
+              )
+            }
+          />
+          <Route
+            path="/result"
+            element={
+              user && result ? (
+                <Result result={result} onTryAgain={handleResetResult} />
+              ) : (
+                <Navigate to="/" />
+              )
+            }
+          />
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
+      )}
+    </Router>
   );
 }
 
