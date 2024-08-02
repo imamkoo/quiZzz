@@ -1,4 +1,5 @@
 import { signInWithPopup } from "firebase/auth";
+import Jumping from "../../assets/jumping.svg";
 import { auth, googleProvider } from "../../firebase";
 import "./Login.scss";
 
@@ -15,14 +16,20 @@ const Login = () => {
   };
 
   return (
-    <div className="login-container">
-      <div className="login-card">
-        <h2>Welcome</h2>
-        <button onClick={handleGoogleSignIn} className="google-signin-button">
-          Sign in with Google
-        </button>
+    <section className="login-section">
+      <div className="login-container">
+        <div className="login-row">
+          <div className="image-column">
+            <img src={Jumping} className="login-image" alt="Jumping image" />
+          </div>
+          <div className="text-column">
+            <button onClick={handleGoogleSignIn} className="sign-in-button">
+              Sign in with Google
+            </button>
+          </div>
+        </div>
       </div>
-    </div>
+    </section>
   );
 };
 

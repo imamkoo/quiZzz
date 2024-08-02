@@ -73,7 +73,6 @@ const Quiz = ({ questions, setResult }) => {
         setShowAnswerTimer(true);
       });
     } else {
-      // Pastikan result di-update sebelum navigate
       const finalResult = {
         ...result,
         score: finalAnswer ? result.score + 10 : result.score,

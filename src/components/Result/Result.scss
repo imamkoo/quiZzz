@@ -1,6 +1,13 @@
 @import "../../styles/vars.scss";
 
-.result {
+/* Define CSS Custom Properties for colors */
+:root {
+  --indicator-color-low: red;
+  --indicator-color-medium: orange;
+  --indicator-color-high: lightgreen;
+}
+
+.results {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -32,23 +39,32 @@
 
     span {
       font-weight: bold;
-      color: $accent;
+      color: $foreground;
     }
   }
 
   button {
-    margin-top: 1.5rem;
-    padding: 0.75rem 1.5rem;
-    font-size: 1rem;
-    color: $bg;
-    background: linear-gradient(0deg, $primary 0.03%, $accent);
+    width: 200px;
+    height: 50px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.5rem;
+    text-align: center;
+    padding: 1rem 2rem;
+    margin: 1rem;
     border: none;
+    background-color: $primary;
+    color: $bg;
     border-radius: 5px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
-
+    transition: background-color 0.3s;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     &:hover {
-      background-color: $primary;
+      background-color: $accent;
+      color: $foreground;
     }
 
     &:focus {
@@ -58,7 +74,7 @@
 }
 
 @media (max-width: 600px) {
-  .result {
+  .results {
     padding: 1.5rem;
 
     h3 {
@@ -73,5 +89,101 @@
       font-size: 0.875rem;
       padding: 0.5rem 1rem;
     }
+  }
+}
+
+/* RESET STYLES
+–––––––––––––––––––––––––––––––––––––––––––––––––– */
+
+.indicator {
+  margin: 0 auto;
+  padding: 0;
+  list-style-type: none;
+  position: relative;
+  width: 350px;
+  height: 175px;
+  overflow: hidden;
+}
+
+.indicator *,
+.indicator::before {
+  box-sizing: border-box;
+}
+
+/* indicator STYLES
+–––––––––––––––––––––––––––––––––––––––––––––––––– */
+
+.indicator {
+  position: relative;
+  width: 350px;
+  height: 175px;
+  overflow: hidden;
+}
+
+.indicator::before,
+.indicator::after {
+  position: absolute;
+}
+
+.indicator::before {
+  content: "";
+  width: inherit;
+  height: inherit;
+  border: 45px solid rgba(211, 211, 211, 0.3);
+  border-bottom: none;
+  border-top-left-radius: 175px;
+  border-top-right-radius: 175px;
+}
+
+.indicator.low .bar {
+  border-color: var(--indicator-color-low);
+}
+
+.indicator.medium .bar {
+  border-color: var(--indicator-color-medium);
+}
+
+.indicator.high .bar {
+  border-color: var(--indicator-color-high);
+}
+
+.indicator span.bar {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: inherit;
+  height: inherit;
+  border: 45px solid;
+  border-top: none;
+  border-bottom-left-radius: 175px;
+  border-bottom-right-radius: 175px;
+  transform-origin: 50% 0;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  animation-fill-mode: forwards;
+  animation-duration: 0.4s;
+  animation-timing-function: linear;
+  z-index: 4;
+  animation-name: rotate-one;
+}
+
+.indicator span.result {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  font-size: 2rem;
+  font-weight: bold;
+  color: $foreground;
+}
+
+span.result span:nth-child(1) {
+  font-size: 1rem;
+  color: $primary;
+}
+
+@keyframes rotate-one {
+  0% {
+    transform: rotate(0);
   }
 }

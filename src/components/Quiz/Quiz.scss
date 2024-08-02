@@ -46,7 +46,7 @@
 
       &:hover {
         background: $accent;
-        color: $bg;
+        color: $foreground;
       }
 
       &.selected-answer {
@@ -63,18 +63,18 @@
   }
 
   button {
-    background: linear-gradient(0deg, $primary 0.03%, $accent);
     border-radius: 9px;
     font-size: 18px;
-    color: $bg;
     padding: 10px 42px;
     outline: none;
     border: none;
     margin-top: 15px;
     cursor: pointer;
+    background-color: $primary;
+    color: $bg;
 
     &:disabled {
-      background: $bg-accent;
+      background-color: $accent;
       color: $disabled;
       cursor: not-allowed;
     }

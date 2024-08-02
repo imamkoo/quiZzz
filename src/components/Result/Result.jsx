@@ -13,14 +13,39 @@ const Result = ({ result, onTryAgain }) => {
       });
   };
 
+  function getIndicatorClass(value, maxValue) {
+    const progress = (value / maxValue) * 100;
+    if (progress < 50) {
+      return "low";
+    } else if (progress < 75) {
+      return "medium";
+    } else {
+      return "high";
+    }
+  }
+
+  function ScoreIndicator({ value, maxValue }) {
+    const val = (value / maxValue) * 100;
+    const deg = (180 / 100) * val;
+    const indicatorClass = getIndicatorClass(value, maxValue);
+    return (
+      <div className={`indicator ${indicatorClass}`}>
+        <span className="bar" style={{ transform: `rotate(${deg}deg)` }} />
+        <span className="result">
+          {value}/<span>{maxValue}</span>
+        </span>
+      </div>
+    );
+  }
+
   return (
-    <div className="result">
+    <div className="results">
       <h3>Result</h3>
       <p>
-        Total Questions: <span>{result.totalQuestions}</span>
-      </p>
-      <p>
-        Total Score: <span>{result.score}</span>
+        <ScoreIndicator
+          value={result.score}
+          maxValue={result.totalQuestions * 10}
+        />
       </p>
       <p>
         Correct Answers: <span>{result.correctAnswers}</span>
